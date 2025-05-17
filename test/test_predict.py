@@ -1,6 +1,6 @@
 import os
 from fastapi.testclient import TestClient
-from main import app  # make sure this is your actual FastAPI app file
+from app import app
 import io
 
 client = TestClient(app)
