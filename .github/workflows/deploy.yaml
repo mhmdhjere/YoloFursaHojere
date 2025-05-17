@@ -21,6 +21,9 @@ jobs:
         run: |
           echo -e "\n\nTesting predict()\n"
           python3 -m unittest test.test_predict
+
+          echo -e "\n\nTesting get_prediction_by_uid()\n"
+          python3 -m unittest get_prediction_by_uid
           
   deploy:
     runs-on: ubuntu-latest
