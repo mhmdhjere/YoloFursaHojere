@@ -52,22 +52,26 @@ jobs:
       - name: Upload and enable systemd service
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.USER }}@${{ secrets.HOST }} "
-            SERVICE_FILE=/etc/systemd/system/yolo.service
-            sudo bash -c "echo '[Unit]' > \$SERVICE_FILE"
-            sudo bash -c "echo 'Description=Yolo Fursa Hojere App' >> \$SERVICE_FILE"
-            sudo bash -c "echo 'After=network.target' >> \$SERVICE_FILE"
-            sudo bash -c "echo '' >> \$SERVICE_FILE"
-            sudo bash -c "echo '[Service]' >> \$SERVICE_FILE"
-            sudo bash -c "echo 'Type=simple' >> \$SERVICE_FILE"
-            sudo bash -c "echo 'User=ubuntu' >> \$SERVICE_FILE"
-            sudo bash -c "echo 'WorkingDirectory=/home/ubuntu/YoloFursaHojere' >> \$SERVICE_FILE"
-            sudo bash -c \"echo 'ExecStart=/home/ubuntu/YoloFursaHojere/venv/bin/python3 /home/ubuntu/YoloFursaHojere/app.py' >> \$SERVICE_FILE\"
-            sudo bash -c "echo 'Restart=always' >> \$SERVICE_FILE"
-            sudo bash -c "echo 'Environment=PYTHONUNBUFFERED=1' >> \$SERVICE_FILE"
-            sudo bash -c "echo 'Environment=PATH=/home/ubuntu/YoloFursaHojere/venv/bin:/usr/bin:/bin' >> \$SERVICE_FILE"
-            sudo bash -c "echo '' >> \$SERVICE_FILE"
-            sudo bash -c "echo '[Install]' >> \$SERVICE_FILE"
-            sudo bash -c "echo 'WantedBy=multi-user.target' >> \$SERVICE_FILE"
+          SERVICE_FILE=/etc/systemd/system/yolo.service
+          
+          sudo bash -c \"echo '[Unit]' > \$SERVICE_FILE\"
+          sudo bash -c \"echo 'Description=Yolo Fursa Hojere App' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo 'After=network.target' >> \$SERVICE_FILE\"
+          
+          sudo bash -c \"echo '' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo '[Service]' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo 'Type=simple' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo 'User=${{ secrets.USER }}' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo 'WorkingDirectory=/home/${{ secrets.USER }}/YoloFursaHojere' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo 'ExecStart=/home/${{ secrets.USER }}/YoloFursaHojere/venv/bin/python3 /home/${{ secrets.USER }}/YoloFursaHojere/app.py' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo 'Restart=always' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo 'Environment=PYTHONUNBUFFERED=1' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo 'Environment=PATH=/home/${{ secrets.USER }}/YoloFursaHojere/venv/bin:/usr/bin:/bin' >> \$SERVICE_FILE\"
+          
+          sudo bash -c \"echo '' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo '[Install]' >> \$SERVICE_FILE\"
+          sudo bash -c \"echo 'WantedBy=multi-user.target' >> \$SERVICE_FILE\"
+
 
             sudo systemctl daemon-reexec
             sudo systemctl daemon-reload
