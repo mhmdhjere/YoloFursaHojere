@@ -1,6 +1,10 @@
-# YOLO Object Detection Service
+# YOLO Object Detection Servic
 
 This is a FastAPI-based web service that performs object detection on uploaded images using the YOLOv8 model. The application analyzes images, detects objects, and stores prediction results in a SQLite database for later retrieval.
+
+## Dummy
+
+This is dummy text
 
 ## Setup Instructions
 
