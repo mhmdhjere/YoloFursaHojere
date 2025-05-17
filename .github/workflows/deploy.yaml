@@ -1,0 +1,76 @@
+name: Test and Deploy Yolobot to EC2
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  TestImgProcessingChatbotApp:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pip install -r torch-requirements.txt
+          pip install -r requirements.txt
+      - name: Test APIs
+        run: |
+          echo -e "\n\nTesting predict()\n"
+          python -m test.test_predict
+          
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: []
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Copy code and install dependencies
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.USER }}@${{ secrets.HOST }} '
+            sudo apt update
+            sudo apt install -y git python3-pip python3-venv
+            rm -rf YoloFursaHojere
+            git clone https://github.com/${{ github.repository }} YoloFursaHojere
+            cd YoloFursaHojere
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r torch-requirements.txt
+            pip install -r requirements.txt
+          '
+
+      - name: Upload and enable systemd service
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.USER }}@${{ secrets.HOST }} "
+            SERVICE_FILE=/etc/systemd/system/yolo.service
+            sudo bash -c "echo '[Unit]' > \$SERVICE_FILE"
+            sudo bash -c "echo 'Description=Yolo Fursa Hojere App' >> \$SERVICE_FILE"
+            sudo bash -c "echo 'After=network.target' >> \$SERVICE_FILE"
+            sudo bash -c "echo '' >> \$SERVICE_FILE"
+            sudo bash -c "echo '[Service]' >> \$SERVICE_FILE"
+            sudo bash -c "echo 'Type=simple' >> \$SERVICE_FILE"
+            sudo bash -c "echo 'User=ubuntu' >> \$SERVICE_FILE"
+            sudo bash -c "echo 'WorkingDirectory=/home/ubuntu/YoloFursaHojere' >> \$SERVICE_FILE"
+            sudo bash -c \"echo 'ExecStart=/home/ubuntu/YoloFursaHojere/.venv/bin/python /home/ubuntu/YoloFursaHojere/app.py' >> \$SERVICE_FILE\"
+            sudo bash -c "echo 'Restart=always' >> \$SERVICE_FILE"
+            sudo bash -c "echo 'Environment=PYTHONUNBUFFERED=1' >> \$SERVICE_FILE"
+            sudo bash -c "echo 'Environment=PATH=/home/ubuntu/YoloFursaHojere/.venv/bin:/usr/bin:/bin' >> \$SERVICE_FILE"
+            sudo bash -c "echo '' >> \$SERVICE_FILE"
+            sudo bash -c "echo '[Install]' >> \$SERVICE_FILE"
+            sudo bash -c "echo 'WantedBy=multi-user.target' >> \$SERVICE_FILE"
+
+            sudo systemctl daemon-reexec
+            sudo systemctl daemon-reload
+            sudo systemctl enable mypolybot
+            sudo systemctl restart mypolybot
+          "
