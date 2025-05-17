@@ -20,7 +20,7 @@ jobs:
       - name: Test APIs
         run: |
           echo -e "\n\nTesting predict()\n"
-          PYTHONPATH=. python -m test.test_predict
+          python3 -m unittest test.test_predict
           
   deploy:
     runs-on: ubuntu-latest
