@@ -129,33 +129,31 @@ def get_prediction_by_uid(uid: str, conn=Depends(get_db)):
     """
     Get prediction session by uid with all detected objects
     """
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.row_factory = sqlite3.Row
-        # Get prediction session
-        session = conn.execute("SELECT * FROM prediction_sessions WHERE uid = ?", (uid,)).fetchone()
-        if not session:
-            raise HTTPException(status_code=404, detail="Prediction not found")
-            
-        # Get all detection objects for this prediction
-        objects = conn.execute(
-            "SELECT * FROM detection_objects WHERE prediction_uid = ?", 
-            (uid,)
-        ).fetchall()
+    # Use the injected conn (already opened and configured)
+    session = conn.execute("SELECT * FROM prediction_sessions WHERE uid = ?", (uid,)).fetchone()
+    if not session:
+        raise HTTPException(status_code=404, detail="Prediction not found")
         
-        return {
-            "uid": session["uid"],
-            "timestamp": session["timestamp"],
-            "original_image": session["original_image"],
-            "predicted_image": session["predicted_image"],
-            "detection_objects": [
-                {
-                    "id": obj["id"],
-                    "label": obj["label"],
-                    "score": obj["score"],
-                    "box": obj["box"]
-                } for obj in objects
-            ]
-        }
+    objects = conn.execute(
+        "SELECT * FROM detection_objects WHERE prediction_uid = ?", 
+        (uid,)
+    ).fetchall()
+    
+    return {
+        "uid": session["uid"],
+        "timestamp": session["timestamp"],
+        "original_image": session["original_image"],
+        "predicted_image": session["predicted_image"],
+        "detection_objects": [
+            {
+                "id": obj["id"],
+                "label": obj["label"],
+                "score": obj["score"],
+                "box": obj["box"]
+            } for obj in objects
+        ]
+    }
+
 
 @app.get("/predictions/label/{label}")
 def get_predictions_by_label(label: str):
