@@ -2,9 +2,6 @@
 
 This is a FastAPI-based web service that performs object detection on uploaded images using the YOLOv8 model. The application analyzes images, detects objects, and stores prediction results in a SQLite database for later retrieval.
 
-
-## Dummy 
-
 ## Setup Instructions
 
 1. Create a virtual environment:
