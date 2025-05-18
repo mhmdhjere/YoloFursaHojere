@@ -23,7 +23,8 @@ jobs:
           python3 -m unittest test.test_predict
 
           echo -e "\n\nTesting get_prediction_by_uid()\n"
-          pytest -k test/get_prediction_by_uid
+          pytest -k get_prediction_success
+          pytest -k get_prediction_not_found
           
   deploy:
     runs-on: ubuntu-latest
