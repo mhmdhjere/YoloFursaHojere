@@ -78,7 +78,10 @@ def save_detection_object(prediction_uid, label, score, box):
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 @app.post("/predict")
