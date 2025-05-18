@@ -19,12 +19,8 @@ jobs:
           pip install -r requirements.txt
       - name: Test APIs
         run: |
-          echo -e "\n\nTesting predict()\n"
-          python3 -m unittest test.test_predict
-
           echo -e "\n\nTesting get_prediction_by_uid()\n"
-          pytest -k get_prediction_success
-          pytest -k get_prediction_not_found
+          pytest test/
           
   deploy:
     runs-on: ubuntu-latest
